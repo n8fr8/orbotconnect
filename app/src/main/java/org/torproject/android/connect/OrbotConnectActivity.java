@@ -47,6 +47,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -73,7 +74,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 public class OrbotConnectActivity extends Activity
-        implements OrbotConstants, OnLongClickListener, OnTouchListener {
+        implements OrbotConstants, OnLongClickListener {
 
     /* Useful UI bits */
     private TextView lblStatus = null; //the main text display widget
@@ -212,7 +213,21 @@ public class OrbotConnectActivity extends Activity
         lblStatus.setOnLongClickListener(this);
         imgStatus = (ImageProgressView)findViewById(R.id.imgStatus);
         imgStatus.setOnLongClickListener(this);
-        imgStatus.setOnTouchListener(this);
+        imgStatus.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+
+                if (torStatus == TorServiceConstants.STATUS_OFF) {
+                    lblStatus.setText(getString(R.string.status_starting_up));
+                    startTor();
+                } else {
+                    lblStatus.setText(getString(R.string.status_shutting_down));
+                    stopTor();
+                }
+
+            }
+        });
 
 		mBtnStart =(Button)findViewById(R.id.btnStart);
 		mBtnStart.setOnClickListener(new View.OnClickListener()
@@ -253,15 +268,7 @@ public class OrbotConnectActivity extends Activity
         //((TextView)findViewById(R.id.torInfo)).setText("Tor v" + TorServiceConstants.BINARY_TOR_VERSION);
 
     }
-    
-    GestureDetector mGestureDetector;
-    
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        return mGestureDetector.onTouchEvent(event);
-	}
-   	
     
    /*
     * Create the UI Options Menu (non-Javadoc)
@@ -570,6 +577,16 @@ public class OrbotConnectActivity extends Activity
 				Prefs.putUseVpn(false);
 			}
         }
+        else if (request == REQUEST_VPN_APPS_SELECT)
+        {
+            if (response == RESULT_OK) {
+
+                if (torStatus == TorServiceConstants.STATUS_ON) {
+                    enableVPN(false);
+                    enableVPN(true);
+                }
+            }
+        }
 
         IntentResult scanResult = IntentIntegrator.parseActivityResult(request, response, data);
         if (scanResult != null) {
@@ -661,17 +678,6 @@ public class OrbotConnectActivity extends Activity
         sendIntentToService(TorServiceConstants.CMD_VPN_CLEAR);
     }
 
-    private boolean flushTransProxy ()
-    {
-        sendIntentToService(TorServiceConstants.CMD_FLUSH);
-        return true;
-    }
-    
-    private boolean updateTransProxy ()
-    {
-        sendIntentToService(TorServiceConstants.CMD_UPDATE_TRANS_PROXY);
-        return true;
-    }
 
     @Override
     protected void onResume() {
@@ -757,6 +763,13 @@ public class OrbotConnectActivity extends Activity
                 pEdit.commit();
                 showAlert(getString(R.string.status_activated),
                         getString(R.string.connect_first_time), true);
+
+                String tordAppString = mPrefs.getString(PREFS_KEY_TORIFIED, "");
+                if (TextUtils.isEmpty(tordAppString))
+                {
+                    editApps();
+                }
+
             }
 
             if (autoStartFromIntent)
@@ -975,12 +988,15 @@ public class OrbotConnectActivity extends Activity
             mProgress.setVisibility(View.VISIBLE);
         }
 
-        mProgress.setProgress(percent);
+        if (percent > mProgress.getProgress())
+            mProgress.setProgress(percent);
     }
 
     private void stopProgress ()
     {
        mProgress.setVisibility(View.GONE);
+        mProgress.setProgress(0);
+
     }
 
 }

@@ -22,9 +22,12 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,6 +37,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -41,27 +45,22 @@ import android.widget.TextView;
 
 public class AppManager extends Activity implements OnCheckedChangeListener, OnClickListener, OrbotConstants {
 
-    private ListView listApps;
+    private GridView listApps;
     private final static String TAG = "Orbot";
-    
+    PackageManager pMgr = null;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    
+
+        pMgr = getPackageManager();
+
         this.setContentView(R.layout.layout_apps);
         setTitle(R.string.apps_mode);
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        
-        View buttonSelectAll, buttonSelectNone, buttonInvert;
 
-        buttonSelectAll =   findViewById(R.id.button_proxy_all);
-        buttonSelectNone =  findViewById(R.id.button_proxy_none);
-        buttonInvert =      findViewById(R.id.button_invert_selection);
-
-        buttonSelectAll.setOnClickListener(new OnAutoClickListener(0));
-        buttonSelectNone.setOnClickListener(new OnAutoClickListener(1));
-        buttonInvert.setOnClickListener(new OnAutoClickListener(2));
     }
 
+    /**
     class OnAutoClickListener implements Button.OnClickListener {
         private int status;
         public OnAutoClickListener(int status){
@@ -69,7 +68,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener, OnC
         }
         @SuppressWarnings("unchecked")
         public void onClick(View button){
-            ListView listView;
+            GridView listView;
             ViewGroup viewGroup;
             View parentView, currentView;
             ArrayAdapter<TorifiedApp> adapter;
@@ -80,7 +79,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener, OnC
             int posI, selectedI, lvSz;
 
             buttonId = button.getId();
-            listView = (ListView) findViewById(R.id.applistview);
+            listView = (GridView) findViewById(R.id.applistview);
             lvSz = listView.getCount();
             isSelected = new boolean[lvSz];
 
@@ -127,17 +126,30 @@ public class AppManager extends Activity implements OnCheckedChangeListener, OnC
             saveAppSettings(context);
             loadApps(prefs);
         }
+    }**/
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.orbot_apps, menu);
+
+        return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                setResult(RESULT_OK);
+                setResult(RESULT_CANCELED);
                 finish();
                 return true;
 
-
+            case R.id.menu_save:
+                setResult(RESULT_OK);
+                finish();
+                return true;
         }
 
         return false;
@@ -146,7 +158,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener, OnC
     @Override
     protected void onResume() {
         super.onResume();
-        listApps = (ListView)findViewById(R.id.applistview);
+        listApps = (GridView)findViewById(R.id.applistview);
 
         mPrefs = TorServiceUtils.getSharedPrefs(getApplicationContext());
         loadApps(mPrefs);
@@ -198,15 +210,22 @@ public class AppManager extends Activity implements OnCheckedChangeListener, OnC
                 final TorifiedApp app = mApps.get(position);
 
                 if (entry.icon != null) {
-                    if (app.getIcon() != null)
-                        entry.icon.setImageDrawable(app.getIcon());
-                    else
-                        entry.icon.setVisibility(View.GONE);
+
+                        try {
+                            entry.icon.setImageDrawable(pMgr.getApplicationIcon(app.getPackageName()));
+                            entry.icon.setOnClickListener(AppManager.this);
+
+                            if (entry.box != null)
+                                entry.icon.setTag(entry.box);
+                        }
+                        catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
                 }
 
                 if (entry.text != null) {
                     entry.text.setText(app.getName());
-                    entry.text.setOnClickListener(AppManager.this);
                     entry.text.setOnClickListener(AppManager.this);
 
                     if (entry.box != null)
@@ -218,7 +237,6 @@ public class AppManager extends Activity implements OnCheckedChangeListener, OnC
                     entry.box.setOnCheckedChangeListener(AppManager.this);
                     entry.box.setTag(app);
                     entry.box.setChecked(app.isTorified());
-
 
                 }
 
@@ -246,7 +264,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener, OnC
     }
 
     
-    public static ArrayList<TorifiedApp> getApps (Context context, SharedPreferences prefs)
+    public ArrayList<TorifiedApp> getApps (Context context, SharedPreferences prefs)
     {
 
         String tordAppString = prefs.getString(PREFS_KEY_TORIFIED, "");
@@ -263,8 +281,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener, OnC
         Arrays.sort(tordApps);
 
         //else load the apps up
-        PackageManager pMgr = context.getPackageManager();
-        
+
         List<ApplicationInfo> lAppInfo = pMgr.getInstalledApplications(0);
         
         Iterator<ApplicationInfo> itAppInfo = lAppInfo.iterator();
@@ -284,7 +301,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener, OnC
             
             try {
                 PackageInfo pInfo = pMgr.getPackageInfo(aInfo.packageName, PackageManager.GET_PERMISSIONS);
-                
+
                 if (pInfo != null && pInfo.requestedPermissions != null)
                 {
                     for (String permInfo:pInfo.requestedPermissions)
@@ -303,14 +320,25 @@ public class AppManager extends Activity implements OnCheckedChangeListener, OnC
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            
+
             if ((aInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1)
             {
                  //System app
                 app.setUsesInternet(true);
            }
-            
-            
+
+
+            try
+            {
+                app.setName(pMgr.getApplicationLabel(aInfo).toString());
+            }
+            catch (Exception e)
+            {
+               // no name
+                continue; //we only show apps with names
+            }
+
+
             if (!app.usesInternet())
                 continue;
             else
@@ -324,18 +352,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener, OnC
             app.setProcname(aInfo.processName);
             app.setPackageName(aInfo.packageName);
             
-            try
-            {
-                app.setName(pMgr.getApplicationLabel(aInfo).toString());
-            }
-            catch (Exception e)
-            {
-                app.setName(aInfo.packageName);
-            }
-            
-            
-            //app.setIcon(pMgr.getApplicationIcon(aInfo));
-            
+
             // check if this application is allowed
             if (Arrays.binarySearch(tordApps, app.getUsername()) >= 0) {
                 app.setTorified(true);

@@ -8,25 +8,6 @@ android:title="@string/pref_start_boot_title"
 android:summary="@string/pref_start_boot_summary"
 android:enabled="true"/>
 
-<CheckBoxPreference
-android:defaultValue="true" 
-android:key="pref_persistent_notifications"
-android:summary="@string/pref_use_persistent_notifications"
-android:enabled="true" 
-android:title="@string/pref_use_persistent_notifications_title"/>
-
-<CheckBoxPreference
-android:defaultValue="true" 
-android:key="pref_expanded_notifications"
-android:summary="@string/pref_use_expanded_notifications"
-android:enabled="true" 
-android:title="@string/pref_use_expanded_notifications_title"/>
-
-<CheckBoxPreference
-android:defaultValue="true" 
-android:key="pref_allow_background_starts"
-android:summary="@string/pref_allow_background_starts_summary"
-android:title="@string/pref_allow_background_starts_title"/>
 
  <ListPreference android:title="@string/set_locale_title"
    android:key="pref_default_locale"
@@ -36,45 +17,6 @@ android:title="@string/pref_allow_background_starts_title"/>
 
 </PreferenceCategory>
 
-<PreferenceCategory android:title="@string/pref_trans_proxy_group">
-
-<CheckBoxPreference 
-android:defaultValue="false" 
-android:key="has_root"
-android:title="@string/pref_has_root"
-android:summary="@string/pref_has_root_summary"
-android:enabled="true"/>
-    
-<CheckBoxPreference 
-android:defaultValue="false" 
-android:key="pref_transparent"
-android:title="@string/pref_trans_proxy_title"
-android:summary="@string/pref_trans_proxy_summary"
-android:enabled="true"/>
-
-<CheckBoxPreference
-android:defaultValue="false" 
-android:key="pref_transparent_all"
-android:summary="@string/pref_transparent_all_summary"
-android:enabled="true" 
-android:title="@string/pref_transparent_all_title"/>
-
-<Preference
-android:defaultValue="" 
-android:key="pref_transparent_app_list"
-android:title="@string/pref_select_apps"
-android:summary="@string/pref_select_apps_summary"
-android:enabled="true"/>
-
-<CheckBoxPreference
-android:defaultValue="false" 
-android:key="pref_transparent_tethering"
-android:summary="@string/pref_transparent_tethering_summary"
-android:enabled="true"
-android:title="@string/pref_transparent_tethering_title"/>
-
-
-</PreferenceCategory>
 
 <PreferenceCategory android:title="@string/pref_node_configuration"
  android:summary="@string/pref_node_configuration_summary">
@@ -116,46 +58,7 @@ android:inputType="textMultiLine|textNoSuggestions"
 
 </PreferenceCategory>
 
-<PreferenceCategory android:title="@string/relays">
-<CheckBoxPreference android:key="pref_or"
-android:defaultValue="false"
-android:title="@string/relaying"
-android:summary="@string/enable_your_device_to_be_a_non_exit_relay"
-android:enabled="true"
-/>
 
-<EditTextPreference android:key="pref_or_port"
-android:defaultValue="9001"
-android:title="@string/relay_port"
-android:summary="@string/listening_port_for_your_tor_relay"
-android:dialogTitle="@string/enter_or_port"
-/>
-
-<EditTextPreference android:key="pref_or_nickname"
-android:defaultValue="OrbotRelay"
-android:title="@string/relay_nickname"
-android:summary="@string/the_nickname_for_your_tor_relay"
-android:dialogTitle="@string/enter_a_custom_relay_nickname"
-/>
-
-</PreferenceCategory>
-
-<PreferenceCategory android:title="ReachableAddresses">
-<CheckBoxPreference
-android:key="pref_reachable_addresses"
-android:defaultValue="false"
-android:title="@string/reachable_addresses"
-android:summary="@string/run_as_a_client_behind_a_firewall_with_restrictive_policies"
-android:enabled="true"></CheckBoxPreference>
-
-<EditTextPreference
-android:key="pref_reachable_addresses_ports"
-android:defaultValue="*:80,*:443"
-android:title="@string/reachable_ports"
-android:summary="@string/ports_reachable_behind_a_restrictive_firewall"
-android:dialogTitle="@string/enter_ports"
-/>
-</PreferenceCategory>
 
 <PreferenceCategory android:title="@string/pref_proxy_title">
 <EditTextPreference android:key="pref_proxy_type"
@@ -213,7 +116,6 @@ android:defaultValue="5400"
 android:title="@string/pref_torrc_title"
 android:summary="@string/pref_torrc_summary"
 android:dialogTitle="@string/pref_torrc_dialog"
-android:defaultValue=""
 />
     
   
@@ -225,33 +127,6 @@ android:summary="@string/enable_debug_log_to_output_must_use_adb_or_alogcat_to_v
 android:enabled="true"></CheckBoxPreference>
 
 
-<CheckBoxPreference
-android:defaultValue="false" 
-android:key="pref_use_sys_iptables"
-android:summary="@string/pref_use_sys_iptables_summary"
-android:enabled="true" 
-android:title="@string/pref_use_sys_iptables_title"/>
-
-
-<CheckBoxPreference
-android:defaultValue="true" 
-android:key="pref_disable_network"
-android:summary="@string/pref_disable_network_summary"
-android:enabled="true" 
-android:title="@string/pref_disable_network_title"/>
-
-<CheckBoxPreference
-android:defaultValue="false" 
-android:key="pref_transproxy_refresh"
-android:summary="@string/pref_transproxy_refresh_summary"
-android:enabled="true" 
-android:title="@string/pref_transproxy_refresh_title"/>
-
-<Preference
-android:key="pref_transproxy_flush"
-android:summary="@string/pref_transproxy_flush_summary"
-android:enabled="true" 
-android:title="@string/pref_transproxy_flush_title"/>
 
 </PreferenceCategory>
 </PreferenceScreen>
