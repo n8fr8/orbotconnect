@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.torproject.android.connect"
     android:installLocation="auto"
-    android:versionCode="15402000"
-    android:versionName="15.4.0-beta-2-multi">
+    android:versionCode="1"
+    android:versionName="0.0.1-prototype-1">
 
     <uses-sdk
         android:minSdkVersion="16"
