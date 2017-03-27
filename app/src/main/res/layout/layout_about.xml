@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+	android:background="@color/dark_purple"
+	>
 	<ScrollView android:id="@+id/aboutscrollview" 
 		android:orientation="vertical"
 		android:layout_width="fill_parent" 
@@ -94,20 +96,7 @@
 				android:textColorLink="#ffffff"
 				android:paddingLeft="15px"	
 				android:textColor="#ffffff" />	
-			<TextView android:text="@string/polipo_version"
-				android:layout_width="fill_parent" 
-				android:layout_height="wrap_content"
-				android:autoLink="web"
-				android:textColorLink="#ffffff"
-				android:paddingLeft="15px"	
-				android:textColor="#ffffff" />	
-			<TextView android:text="@string/iptables_version"
-				android:layout_width="fill_parent" 
-				android:layout_height="wrap_content"
-				android:autoLink="web"
-				android:textColorLink="#ffffff"
-				android:paddingLeft="15px"
-				android:textColor="#ffffff"/>
+
 			<TextView android:text="@string/openssl_version"
 				android:layout_width="fill_parent" 
 				android:layout_height="wrap_content"

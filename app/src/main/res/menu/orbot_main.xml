@@ -28,8 +28,8 @@
 
  <item android:id="@+id/menu_edit_apps"
      android:title="@string/pref_select_apps"
-     android:icon="@drawable/ic_action_settings"
-     android:showAsAction="never"
+     android:icon="@drawable/ic_apps_white_24dp"
+     android:showAsAction="always"
      />
  <item
         android:title="@string/menu_qr"
