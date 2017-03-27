@@ -81,31 +81,19 @@ public class TorResourceInstaller implements TorServiceConstants {
         is = context.getResources().openRawResource(R.raw.torrc);
         outFile = new File(installFolder, TORRC_ASSET_KEY);
         streamToFile(is,outFile, false, false);
-        
-        is = context.getResources().openRawResource(R.raw.torpolipo);
-        outFile = new File(installFolder, POLIPOCONFIG_ASSET_KEY);
-        streamToFile(is,outFile, false, false);
 
+        /**
         is = context.getAssets().open(cpuPath + '/' + OBFSCLIENT_ASSET_KEY + MP3_EXT);
         outFile = new File(installFolder, OBFSCLIENT_ASSET_KEY);
         streamToFile(is,outFile, false, true);
         setExecutable(outFile);
+         **/
 
         is = context.getAssets().open(cpuPath + '/' + TOR_ASSET_KEY + MP3_EXT);
         outFile = new File(installFolder, TOR_ASSET_KEY);
         streamToFile(is,outFile, false, true);
         setExecutable(outFile);
-    
-        is = context.getAssets().open(cpuPath + '/' + POLIPO_ASSET_KEY + MP3_EXT);
-        outFile = new File(installFolder, POLIPO_ASSET_KEY);
-        streamToFile(is,outFile, false, true);
-        setExecutable(outFile);
-    
-        is = context.getAssets().open(cpuPath + '/' + IPTABLES_ASSET_KEY + MP3_EXT);
-        outFile = new File(installFolder, IPTABLES_ASSET_KEY);
-        streamToFile(is,outFile, false, true);
-        setExecutable(outFile);
-        
+
         is = context.getAssets().open(cpuPath + '/' + PDNSD_ASSET_KEY + MP3_EXT);
         outFile = new File(installFolder, PDNSD_ASSET_KEY);
         streamToFile(is,outFile, false, true);
@@ -133,39 +121,7 @@ public class TorResourceInstaller implements TorServiceConstants {
     	
         return true;
     }
-    
-    public boolean updatePolipoConfig (File filePolipo, String extraLines) throws IOException, FileNotFoundException, TimeoutException
-    {
-        
-        InputStream is;
-        
 
-        is = context.getResources().openRawResource(R.raw.torpolipo);        
-        streamToFile(is,filePolipo, false, false);
-
-        if (extraLines != null && extraLines.length() > 0)
-        {
-            StringBufferInputStream sbis = new StringBufferInputStream('\n' + extraLines + '\n');
-            streamToFile(sbis,filePolipo,true,false);
-        }
-        
-
-        return true;
-    }
-    
-    public boolean installPolipoConf () throws IOException, FileNotFoundException, TimeoutException
-    {
-        
-        InputStream is;
-        File outFile;
-        
-
-        is = context.getResources().openRawResource(R.raw.torpolipo);
-        outFile = new File(installFolder, POLIPOCONFIG_ASSET_KEY);
-        streamToFile(is,outFile, false, false);
-        
-        return true;
-    }
     
     /*
      * Extract the Tor binary from the APK file using ZIP
@@ -316,23 +272,7 @@ public class TorResourceInstaller implements TorServiceConstants {
         // Change the permissions
         Runtime.getRuntime().exec("chmod "+mode+" "+abspath).waitFor();
     }
-    /**
-     * Asserts that the binary files are installed in the bin directory.
-     * @param ctx context
-     * @param showErrors indicates if errors should be alerted
-     * @return false if the binary files could not be installed
-     */
-    /*
-    public static boolean assertIpTablesBinaries(Context ctx, boolean showErrors) throws Exception {
-        boolean changed = false;
-        
-        // Check iptables_g1
-        File file = new File(ctx.getDir("bin",0), "iptables");
-        copyRawFile(ctx, R.raw.iptables, file, CHMOD_EXEC, false);
-                
-        return true;
-    }*/
-    
+
 
     private void setExecutable(File fileBin) {
         fileBin.setReadable(true);

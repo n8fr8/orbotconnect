@@ -33,12 +33,9 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.runjva.sourceforge.jsocks.protocol.ProxyServer;
-import com.runjva.sourceforge.jsocks.server.ServerAuthenticatorNone;
 
 import org.torproject.android.service.R;
 import org.torproject.android.service.TorServiceConstants;
-import org.torproject.android.service.transproxy.TorifiedApp;
 import org.torproject.android.service.util.TorServiceUtils;
 
 import java.io.BufferedReader;
@@ -46,10 +43,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
@@ -68,7 +63,6 @@ public class OrbotVpnManager implements Handler.Callback {
     
     public static int sSocksProxyServerPort = -1;
     public static String sSocksProxyLocalhost = null;
-    private ProxyServer mSocksProxyServer;
 
     private final static int VPN_MTU = 1500;
     
@@ -171,65 +165,17 @@ public class OrbotVpnManager implements Handler.Callback {
 					}
                 	
                 }
-                
-                
-		    	if (mSocksProxyServer != null)
-		    	{
-		    		stopSocksBypass ();
-		    	}
 
-		    	try
-		    	{
-			        mSocksProxyServer = new ProxyServer(new ServerAuthenticatorNone(null, null));
-			        ProxyServer.setVpnService(mService);
-			        mSocksProxyServer.start(sSocksProxyServerPort, 5, InetAddress.getLocalHost());
-			        
-		    	}
-		    	catch (Exception e)
-		    	{
-		    		Log.e(TAG,"error getting host",e);
-		    	}
+
+
     		}
     	}.start();
        
     }
 
-    private synchronized void stopSocksBypass ()
-    {
-
-        if (mSocksProxyServer != null){
-            mSocksProxyServer.stop();
-            mSocksProxyServer = null;
-        }
-        
-        
-    }
-    
-    /**
-    @Override
-	public void onCreate() {
-		super.onCreate();
-		
-		// Set the locale to English (or probably any other language that^M
-        // uses Hindu-Arabic (aka Latin) numerals).^M
-        // We have found that VpnService.Builder does something locale-dependent^M
-        // internally that causes errors when the locale uses its own numerals^M
-        // (i.e., Farsi and Arabic).^M
-		Locale.setDefault(new Locale("en"));
-		
-	}
-
-
-	@Override
-    public void onDestroy() {
-    	stopVPN();
-    }*/
     
     private void stopVPN ()
     {
-    	if (mIsLollipop)
-    		stopSocksBypass ();
-        
         if (mInterface != null){
             try
             {

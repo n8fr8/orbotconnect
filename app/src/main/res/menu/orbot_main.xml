@@ -18,48 +18,36 @@
  */
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:yourapp="http://schemas.android.com/apk/res-auto"
     >
 
  <item android:id="@+id/menu_settings"
         android:title="@string/menu_settings"
          android:icon="@drawable/ic_action_settings"
-         yourapp:showAsAction="never"
+         android:showAsAction="never"
          />
 
+ <item android:id="@+id/menu_edit_apps"
+     android:title="@string/pref_select_apps"
+     android:icon="@drawable/ic_action_settings"
+     android:showAsAction="never"
+     />
  <item
         android:title="@string/menu_qr"
-     yourapp:showAsAction="never"
+     android:showAsAction="never"
          >
   <menu>
   <item android:id="@+id/menu_scan"
         android:title="@string/menu_scan"
-      yourapp:showAsAction="never"
+      android:showAsAction="never"
          />
   
   <item android:id="@+id/menu_share_bridge"
         android:title="@string/menu_share_bridge"
-      yourapp:showAsAction="never"
+      android:showAsAction="never"
          />
   </menu>
  </item>
 
-    <item
-        android:title="@string/menu_hidden_services"
-        yourapp:showAsAction="never"
-        >
-      <menu>
-        <item android:id="@+id/menu_hidden_services"
-              android:title="@string/hosted_services"
-            yourapp:showAsAction="never"
-               />
-
-        <item android:id="@+id/menu_client_cookies"
-              android:title="@string/client_cookies"
-            yourapp:showAsAction="never"
-               />
-      </menu>
-    </item>
         
  <!--
   <item android:id="@+id/menu_promo_apps"
@@ -73,15 +61,9 @@
   <item android:id="@+id/menu_about"
         android:title="@string/menu_about"
          android:icon="@drawable/ic_menu_about"
-      yourapp:showAsAction="never"
+      android:showAsAction="never"
          
          />
- 
-  <item android:id="@+id/menu_exit"
-        android:title="@string/menu_exit"
-         android:icon="@drawable/ic_menu_exit"
-      yourapp:showAsAction="never"
-         
-         />
+
  
 </menu>

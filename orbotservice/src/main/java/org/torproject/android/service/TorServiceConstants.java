@@ -52,15 +52,13 @@ public interface TorServiceConstants {
 
 	public final static String IP_LOCALHOST = "127.0.0.1";
 	public final static int UPDATE_TIMEOUT = 1000;
-	public final static int TOR_TRANSPROXY_PORT_DEFAULT = 9040;
-	
+
 	public final static int STANDARD_DNS_PORT = 53;
-	public final static int TOR_DNS_PORT_DEFAULT = 5400;
+	public final static int TOR_DNS_PORT_DEFAULT = 9400;
 	public final static String TOR_VPN_DNS_LISTEN_ADDRESS = "127.0.0.1";
 	
-	public final static int CONTROL_PORT_DEFAULT = 9051;
-    public final static int HTTP_PROXY_PORT_DEFAULT = 8118; // like Privoxy!
-    public final static int SOCKS_PROXY_PORT_DEFAULT = 9050;
+	public final static int CONTROL_PORT_DEFAULT = 9091;
+    public final static int SOCKS_PROXY_PORT_DEFAULT = 9090;
 
     
 	//path to check Tor against
@@ -74,34 +72,34 @@ public interface TorServiceConstants {
     /**
      * A request to Orbot to transparently start Tor services
      */
-    public final static String ACTION_START = "org.torproject.android.intent.action.START";
+    public final static String ACTION_START = "org.torproject.android.connect.intent.action.START";
     /**
      * {@link Intent} send by Orbot with {@code ON/OFF/STARTING/STOPPING} status
      */
-    public final static String ACTION_STATUS = "org.torproject.android.intent.action.STATUS";
+    public final static String ACTION_STATUS = "org.torproject.android.connect.intent.action.STATUS";
     /**
      * {@code String} that contains a status constant: {@link #STATUS_ON},
      * {@link #STATUS_OFF}, {@link #STATUS_STARTING}, or
      * {@link #STATUS_STOPPING}
      */
-    public final static String EXTRA_STATUS = "org.torproject.android.intent.extra.STATUS";
+    public final static String EXTRA_STATUS = "org.torproject.android.connect.intent.extra.STATUS";
     /**
      * A {@link String} {@code packageName} for Orbot to direct its status reply
      * to, used in {@link #ACTION_START} {@link Intent}s sent to Orbot
      */
-    public final static String EXTRA_PACKAGE_NAME = "org.torproject.android.intent.extra.PACKAGE_NAME";
+    public final static String EXTRA_PACKAGE_NAME = "org.torproject.android.connect.intent.extra.PACKAGE_NAME";
     /**
      * The SOCKS proxy settings in URL form.
      */
-    public final static String EXTRA_SOCKS_PROXY = "org.torproject.android.intent.extra.SOCKS_PROXY";
-    public final static String EXTRA_SOCKS_PROXY_HOST = "org.torproject.android.intent.extra.SOCKS_PROXY_HOST";
-    public final static String EXTRA_SOCKS_PROXY_PORT = "org.torproject.android.intent.extra.SOCKS_PROXY_PORT";
+    public final static String EXTRA_SOCKS_PROXY = "org.torproject.android.connect.intent.extra.SOCKS_PROXY";
+    public final static String EXTRA_SOCKS_PROXY_HOST = "org.torproject.android.connect.intent.extra.SOCKS_PROXY_HOST";
+    public final static String EXTRA_SOCKS_PROXY_PORT = "org.torproject.android.connect.intent.extra.SOCKS_PROXY_PORT";
     /**
      * The HTTP proxy settings in URL form.
      */
-    public final static String EXTRA_HTTP_PROXY = "org.torproject.android.intent.extra.HTTP_PROXY";
-    public final static String EXTRA_HTTP_PROXY_HOST = "org.torproject.android.intent.extra.HTTP_PROXY_HOST";
-    public final static String EXTRA_HTTP_PROXY_PORT = "org.torproject.android.intent.extra.HTTP_PROXY_PORT";
+    public final static String EXTRA_HTTP_PROXY = "org.torproject.android.connect.intent.extra.HTTP_PROXY";
+    public final static String EXTRA_HTTP_PROXY_HOST = "org.torproject.android.connect.intent.extra.HTTP_PROXY_HOST";
+    public final static String EXTRA_HTTP_PROXY_PORT = "org.torproject.android.connect.intent.extra.HTTP_PROXY_PORT";
 
     public final static String LOCAL_ACTION_LOG = "log";
     public final static String LOCAL_ACTION_BANDWIDTH = "bandwidth";

@@ -27,14 +27,8 @@ import android.util.Log;
 import java.net.DatagramSocket;
 import java.net.Socket;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
 public class Tun2Socks
 {
-
-    static{
-        System.loadLibrary("tun2socks");
-    }
-
     public static interface IProtectSocket
     {
         boolean doVpnProtect(Socket socket);
@@ -57,7 +51,10 @@ public class Tun2Socks
     // than one instance due to the use of global state (the lwip
     // module, etc.) in the native code.
 
-    public static void init () {}
+    public static void init () {
+
+        System.loadLibrary("tun2socks");
+    }
 
     public static void Start(
             ParcelFileDescriptor vpnInterfaceFileDescriptor,

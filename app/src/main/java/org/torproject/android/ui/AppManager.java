@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.torproject.android.service.OrbotConstants;
-import org.torproject.android.R;
+import org.torproject.android.connect.R;
 import org.torproject.android.service.util.TorServiceUtils;
-import org.torproject.android.service.transproxy.TorifiedApp;
+import org.torproject.android.service.vpn.TorifiedApp;
 
 import android.app.Activity;
 import android.content.Context;
@@ -23,8 +23,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -41,7 +39,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class AppManager extends AppCompatActivity implements OnCheckedChangeListener, OnClickListener, OrbotConstants {
+public class AppManager extends Activity implements OnCheckedChangeListener, OnClickListener, OrbotConstants {
 
     private ListView listApps;
     private final static String TAG = "Orbot";
@@ -51,7 +49,7 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
     
         this.setContentView(R.layout.layout_apps);
         setTitle(R.string.apps_mode);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
         
         View buttonSelectAll, buttonSelectNone, buttonInvert;
 
@@ -319,7 +317,6 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
             {
                 apps.add(app);
             }
-            
             
             app.setEnabled(aInfo.enabled);
             app.setUid(aInfo.uid);

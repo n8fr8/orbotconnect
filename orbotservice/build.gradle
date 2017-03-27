@@ -11,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -26,9 +26,7 @@ android {
 }
 
 dependencies {
-    compile project(':jsocksAndroid')
-    compile project(':RootCommands')
-    compile 'com.android.support:appcompat-v7:25.0.0'
-    compile fileTree(dir: 'libs', include: ['*.jar','*.so'])
+    compile 'com.android.support:support-core-utils:25.3.0'
+    compile fileTree(dir: 'libs', include: ['*.so'])
     testCompile 'junit:junit:4.12'
 }

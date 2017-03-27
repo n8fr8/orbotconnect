@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "org.torproject.android"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 25
     }
 
@@ -27,7 +27,5 @@ android {
 
 dependencies {
     compile project(':orbotservice')
-    compile 'com.android.support:support-v4:25.0.0'
-    compile 'com.android.support:appcompat-v7:25.0.0'
-    compile 'com.android.support:design:25.0.0'
+    compile 'com.github.lzyzsd:circleprogress:1.2.1'
 }

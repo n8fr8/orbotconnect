@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -17,9 +16,8 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.util.Log;
 
-import org.torproject.android.OrbotApp;
-import org.torproject.android.R;
-import org.torproject.android.service.transproxy.TorTransProxy;
+import org.torproject.android.connect.OrbotConnectApp;
+import org.torproject.android.connect.R;
 import org.torproject.android.ui.AppManager;
 import org.torproject.android.service.util.TorServiceUtils;
 
@@ -66,11 +64,11 @@ public class SettingsPreferences
 
                     String lang = settings.getString("pref_default_locale",
                             Locale.getDefault().getLanguage());
-                    OrbotApp app = (OrbotApp) getApplication();
+                    OrbotConnectApp app = (OrbotConnectApp) getApplication();
                     Languages.setLanguage(app, language, true);
                     lang = settings.getString("pref_default_locale",
                             Locale.getDefault().getLanguage());
-                    OrbotApp.forceChangeLanguage(SettingsPreferences.this);
+                    OrbotConnectApp.forceChangeLanguage(SettingsPreferences.this);
                 }
                 return false;
             }
@@ -127,13 +125,13 @@ public class SettingsPreferences
 			{
 
                 try {
-                    TorTransProxy.testRoot();
+
                     prefCBTransProxy.setEnabled(true);
 
                 }
                 catch (Exception e)
                 {
-                    Log.d(OrbotApp.TAG,"root not yet enabled");
+                    Log.d(OrbotConnectApp.TAG,"root not yet enabled");
                 }
 
 			}

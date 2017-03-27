@@ -93,7 +93,7 @@ public class Prefs {
     }
 
     public static boolean useDebugLogging() {
-        return prefs.getBoolean(PREF_ENABLE_LOGGING, false);
+        return true;//prefs.getBoolean(PREF_ENABLE_LOGGING, false);
     }
 
     public static boolean persistNotifications() {
@@ -105,7 +105,7 @@ public class Prefs {
     }
 
     public static boolean useVpn() {
-        return prefs.getBoolean(PREF_USE_VPN, false);
+        return true;//prefs.getBoolean(PREF_USE_VPN, false);
     }
 
     public static void putUseVpn(boolean value) {

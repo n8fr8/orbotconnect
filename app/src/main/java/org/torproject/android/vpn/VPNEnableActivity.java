@@ -1,6 +1,6 @@
 package org.torproject.android.vpn;
 
-import org.torproject.android.R;
+import org.torproject.android.connect.R;
 import org.torproject.android.service.util.Prefs;
 import org.torproject.android.service.TorService;
 import org.torproject.android.service.TorServiceConstants;
@@ -14,7 +14,6 @@ import android.content.Intent;
 import android.net.VpnService;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Window;
 
@@ -23,7 +22,7 @@ import android.view.Window;
  */
 
 @TargetApi(14)
-public class VPNEnableActivity extends AppCompatActivity {
+public class VPNEnableActivity extends Activity {
 	
 	private final static int REQUEST_VPN = 7777;
 	private	Intent intent = null;
@@ -62,42 +61,10 @@ public class VPNEnableActivity extends AppCompatActivity {
 	
 	public void promptStartVpnService ()
     {
-    	 
-         AlertDialog dialog = new AlertDialog.Builder(this)
-         .setTitle(getString(R.string.app_name) + ' ' + getString(R.string.apps_mode))
-         .setMessage(getString(R.string.you_can_enable_all_apps_on_your_device_to_run_through_the_tor_network_using_the_vpn_feature_of_android_))
-         .setPositiveButton(R.string.activate, new Dialog.OnClickListener ()
-         {
 
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-		        Prefs.putUseVpn(true);
-				startVpnService();
-				
-			}
+		Prefs.putUseVpn(true);
+		startVpnService();
 
-        	 
-         })
-         .setNegativeButton(R.string.btn_cancel, new Dialog.OnClickListener ()
-         {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-				 h.postDelayed(new Runnable () {
-		            	
-		            	public void run ()
-		            	{
-		            		VPNEnableActivity.this.finish();	
-		            		
-		            	}
-		            }, 100);
-			}
-        	 
-         }).create();
-         
-         dialog.show();
-         
          
     }
 	 
