@@ -22,13 +22,7 @@ public interface TorServiceConstants {
 	public final static String TORRC_TETHER_KEY = "torrctether";
 	
 	public final static String TOR_CONTROL_COOKIE = "control_auth_cookie";
-	
-	//privoxy
-	public final static String POLIPO_ASSET_KEY = "polipo";
-	
-	//privoxy.config
-	public final static String POLIPOCONFIG_ASSET_KEY = "torpolipo.conf";
-	
+
 	//geoip data file asset key
 	public final static String GEOIP_ASSET_KEY = "geoip";
 	public final static String GEOIP6_ASSET_KEY = "geoip6";
@@ -53,12 +47,9 @@ public interface TorServiceConstants {
 	public final static String IP_LOCALHOST = "127.0.0.1";
 	public final static int UPDATE_TIMEOUT = 1000;
 
-	public final static int STANDARD_DNS_PORT = 53;
-	public final static int TOR_DNS_PORT_DEFAULT = 9400;
 	public final static String TOR_VPN_DNS_LISTEN_ADDRESS = "127.0.0.1";
-	
-	public final static int CONTROL_PORT_DEFAULT = 9091;
-    public final static int SOCKS_PROXY_PORT_DEFAULT = 9090;
+
+//    public final static int SOCKS_PROXY_PORT_DEFAULT = 9090;
 
     
 	//path to check Tor against

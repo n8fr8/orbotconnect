@@ -2,6 +2,8 @@ package org.torproject.android.service;
 
 import android.text.TextUtils;
 
+import net.freehaven.tor.control.EventHandler;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -18,8 +20,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-
-import org.torproject.android.control.EventHandler;
 import org.torproject.android.service.util.Prefs;
 
 /**

@@ -59,9 +59,10 @@ public class OrbotVpnManager implements Handler.Callback {
     private String mSessionName = "OrbotVPN";
     private ParcelFileDescriptor mInterface;
 
-    private int mTorSocks = TorServiceConstants.SOCKS_PROXY_PORT_DEFAULT;
-    
-    public static int sSocksProxyServerPort = -1;
+    private int mTorPortSocks = -1;
+	private int mTorPortDNS = -1;
+
+	public static int sSocksProxyServerPort = -1;
     public static String sSocksProxyLocalhost = null;
 
     private final static int VPN_MTU = 1500;
@@ -70,7 +71,6 @@ public class OrbotVpnManager implements Handler.Callback {
     
     //this is the actual DNS server we talk to over UDP or TCP (now using Tor's DNS port)
     private final static String DEFAULT_ACTUAL_DNS_HOST = "127.0.0.1";
-    private final static int DEFAULT_ACTUAL_DNS_PORT = TorServiceConstants.TOR_DNS_PORT_DEFAULT;
 
 
 	File filePdnsd = null;
@@ -106,14 +106,14 @@ public class OrbotVpnManager implements Handler.Callback {
 		        {
 		        	Log.d(TAG,"starting OrbotVPNService service!");
 		        	
-		        	mTorSocks = intent.getIntExtra("torSocks", TorServiceConstants.SOCKS_PROXY_PORT_DEFAULT);
-			    	
-		        	if (!mIsLollipop)
-		        	{
-	
-		        		startSocksBypass();
-		        	}
-		        	
+		        	mTorPortSocks = intent.getIntExtra("torSocks", -1);
+					mTorPortDNS = intent.getIntExtra("torDNS", -1);
+
+					if (mTorPortSocks == -1 || mTorPortDNS == -1) {
+                        Log.e(TAG,"you provide socks and DNS port to VPN");
+                        return -1;
+                    }
+
 		            setupTun2Socks(builder);               
 		        }
 	    	}
@@ -129,9 +129,6 @@ public class OrbotVpnManager implements Handler.Callback {
 	    	{
 	    		Log.d(TAG,"refresh OrbotVPNService service!");
 	    		
-	    		if (!mIsLollipop)
-	    		  startSocksBypass();
-	    		
 	    		if (!isRestart)
 	    			setupTun2Socks(builder);
 	    	}
@@ -141,37 +138,6 @@ public class OrbotVpnManager implements Handler.Callback {
         return Service.START_STICKY;
     }
   
-    private void startSocksBypass()
-    {
-       
-    	new Thread ()
-    	{
-    		
-    		public void run ()
-    		{
-
-                //generate the proxy port that the 
-                if (sSocksProxyServerPort == -1)
-                {
-                	try {
-						
-                		sSocksProxyLocalhost = "127.0.0.1";// InetAddress.getLocalHost().getHostAddress();
-	                	sSocksProxyServerPort = (int)((Math.random()*1000)+10000); 
-	                	
-					} catch (Exception e) {
-						Log.e(TAG,"Unable to access localhost",e);
-						throw new RuntimeException("Unable to access localhost: " + e);
-						
-					}
-                	
-                }
-
-
-
-    		}
-    	}.start();
-       
-    }
 
     
     private void stopVPN ()
@@ -241,7 +207,7 @@ public class OrbotVpnManager implements Handler.Callback {
 	    			}
 	    			
 	    			//start PDNSD daemon pointing to actual DNS
-	    			startDNS(DEFAULT_ACTUAL_DNS_HOST,DEFAULT_ACTUAL_DNS_PORT);
+	    			startDNS(DEFAULT_ACTUAL_DNS_HOST,mTorPortDNS);
 	    			
 		    		final String vpnName = "OrbotVPN";
 		    		final String localhost = "127.0.0.1";
@@ -253,9 +219,9 @@ public class OrbotVpnManager implements Handler.Callback {
 		    		final String defaultRoute = "0.0.0.0";
 		    		
 		    		final String localSocks = localhost + ':'
-		    		        + String.valueOf(mTorSocks);
+		    		        + String.valueOf(mTorPortSocks);
 		    		
-		    		final String localDNS = virtualGateway + ':' + "8091";//String.valueOf(TorServiceConstants.TOR_DNS_PORT_DEFAULT);
+		    		final String localDNS = localhost + ':' + "8091";//String.valueOf(TorServiceConstants.TOR_DNS_PORT_DEFAULT);
 		    		final boolean localDnsTransparentProxy = true;
 		        	
 			        builder.setMtu(VPN_MTU);

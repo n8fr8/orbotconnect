@@ -37,8 +37,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.torproject.android.control.ConfigEntry;
-import org.torproject.android.control.TorControlConnection;
+import net.freehaven.tor.control.ConfigEntry;
+import net.freehaven.tor.control.EventHandler;
+import net.freehaven.tor.control.TorControlConnection;
+
 import org.torproject.android.service.util.DummyActivity;
 import org.torproject.android.service.util.Prefs;
 import org.torproject.android.service.util.TorResourceInstaller;
@@ -84,10 +86,10 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
     private Socket torConnSocket = null;
     private int mLastProcessId = -1;
 
-    private int mPortSOCKS = SOCKS_PROXY_PORT_DEFAULT;
-    
+    private int mPortSOCKS = -1;
+    private int mPortDNS = -1;
+
     private static final int NOTIFY_ID = 1;
-    private static final int TRANSPROXY_NOTIFY_ID = 2;
     private static final int ERROR_NOTIFY_ID = 3;
     private static final int HS_NOTIFY_ID = 4;
 
@@ -116,16 +118,12 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
     public static File appCacheHome;
 
     public static File fileTor;
-    public static File filePolipo;
     public static File fileObfsclient;
-    public static File fileXtables;
     public static File fileTorRc;
     private File mHSBasePath;
 
     private ArrayList<Bridge> alBridges = null;
 
-
-    private static final Uri HS_CONTENT_URI = Uri.parse("content://org.torproject.android.ui.hiddenservices.providers/hs");
     private static final Uri COOKIE_CONTENT_URI = Uri.parse("content://org.torproject.android.ui.hiddenservices.providers.cookie/cookie");
 
     public static final class HiddenService implements BaseColumns {
@@ -255,21 +253,6 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
 
                 mNotifyBuilder.setContentIntent(pendIntent);
 
-                /**
-                //Restart intent
-                Intent yesReceive = new Intent();
-                yesReceive.setAction("Restart");
-                PendingIntent pendingIntentYes = PendingIntent.getBroadcast(this, 12345, yesReceive, PendingIntent.FLAG_UPDATE_CURRENT);
-                mNotifyBuilder.addAction(R.drawable.ic_stat_tor_off, "Restart", pendingIntentYes);
-
-
-                //Maybe intent
-                Intent maybeReceive = new Intent();
-                maybeReceive.setAction("Identity");
-                PendingIntent pendingIntentMaybe = PendingIntent.getBroadcast(this, 12345, maybeReceive, PendingIntent.FLAG_UPDATE_CURRENT);
-                mNotifyBuilder.addAction(R.drawable.ic_stat_tor_xfer, "New Identity", pendingIntentMaybe);
-                **/
-
             }        
                                 
         }
@@ -293,53 +276,6 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
          mNotifyBuilder.setCategory(Notification.CATEGORY_SERVICE);
 
          mNotification = mNotifyBuilder.build();
-
-         /**
-        if (Build.VERSION.SDK_INT >= 16 && Prefs.expandedNotifications()) {
-            // Create remote view that needs to be set as bigContentView for the notification.
-             RemoteViews expandedView = new RemoteViews(this.getPackageName(), 
-                     R.layout.layout_notification_expanded);
-             
-             StringBuffer sbInfo = new StringBuffer();
-             
-             if (notifyType == NOTIFY_ID)
-                 expandedView.setTextViewText(R.id.text, notifyMsg);
-             else
-             {
-                 expandedView.setTextViewText(R.id.info, notifyMsg);
-             }
-
-             if (mEventHandler != null && mEventHandler.getNodes().size() > 0)
-             {
-                 Set<String> itBuiltNodes = mEventHandler.getNodes().keySet();
-                 for (String key : itBuiltNodes)
-                 {
-                     TorEventHandler.Node node = mEventHandler.getNodes().get(key);
-                     
-                     if (node.ipAddress != null)
-                     {
-                         sbInfo.append(node.ipAddress);
-                     
-                         if (node.country != null)
-                             sbInfo.append(' ').append(node.country);
-                     
-                         if (node.organization != null)
-                             sbInfo.append(" (").append(node.organization).append(')');
-                     
-                         sbInfo.append('\n');
-                     }
-                     
-                 }
-                 
-                 expandedView.setTextViewText(R.id.text2, sbInfo.toString());
-             }
-             
-             expandedView.setTextViewText(R.id.title, getString(R.string.app_name)); 
-             
-             expandedView.setImageViewResource(R.id.icon, icon);
-            mNotification.bigContentView = expandedView;
-        }
-        **/
 
         if (Prefs.persistNotifications() && (!mNotificationShowing))
         {
@@ -389,7 +325,13 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
             if (action != null) {
                 if (action.equals(ACTION_START)) {
                     replyWithStatus(mIntent);
-                    startTor();
+                    boolean success = startTor();
+
+                    if (success && Prefs.useVpn())
+                    {
+                        clearVpnProxy();
+                        startVPNService();
+                    }
                 }
                 else if (action.equals(ACTION_STATUS)) {
                     replyWithStatus(mIntent);                    
@@ -399,7 +341,8 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
                 } else if (action.equals(CMD_NEWNYM)) {
                     newIdentity();
                 } else if (action.equals(CMD_VPN)) {
-                    startVPNService();
+                    //startVPNService();
+                    Prefs.putUseVpn(true);
                 } else if (action.equals(CMD_VPN_CLEAR)) {
                     clearVpnProxy();
                 } else if (action.equals(CMD_SET_EXIT)) {
@@ -519,9 +462,7 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
             appCacheHome = getDir(TorServiceConstants.DIRECTORY_TOR_DATA,Application.MODE_PRIVATE);
 
             fileTor= new File(appBinHome, TorServiceConstants.TOR_ASSET_KEY);
-            filePolipo = new File(appBinHome, TorServiceConstants.POLIPO_ASSET_KEY);
             fileObfsclient = new File(appBinHome, TorServiceConstants.OBFSCLIENT_ASSET_KEY);
-            fileXtables = new File(appBinHome, TorServiceConstants.IPTABLES_ASSET_KEY);
             fileTorRc = new File(appBinHome, TorServiceConstants.TORRC_ASSET_KEY);
 
             mHSBasePath = new File(
@@ -615,42 +556,15 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
         String TORRC_CONTROLPORT_FILE_KEY = "ControlPortWriteToFile";
         fileControlPort = new File(appBinHome, "control.txt");
         extraLines.append(TORRC_CONTROLPORT_FILE_KEY).append(' ').append(fileControlPort.getCanonicalPath()).append('\n');
-
-//         extraLines.append("RunAsDaemon 1").append('\n');
- //        extraLines.append("AvoidDiskWrites 1").append('\n');
         
-         String socksPortPref = prefs.getString(OrbotConstants.PREF_SOCKS,
-                 String.valueOf(TorServiceConstants.SOCKS_PROXY_PORT_DEFAULT));
-         if (socksPortPref.indexOf(':')!=-1)
-             socksPortPref = socksPortPref.split(":")[1];
-         
-        if (!socksPortPref.equalsIgnoreCase("auto"))
-        {
-	        boolean isPortUsed = TorServiceUtils.isPortOpen("127.0.0.1",Integer.parseInt(socksPortPref),500);
-	        
-	        if (isPortUsed) //the specified port is not available, so let Tor find one instead
-	        	socksPortPref = "auto";
-        }
-        
-        extraLines.append("SOCKSPort ").append(socksPortPref).append('\n');
+        extraLines.append("SocksPort ").append("auto").append('\n');
+        extraLines.append("SocksListenAddress 0.0.0.0").append('\n');
         extraLines.append("SafeSocks 0").append('\n');
         extraLines.append("TestSocks 0").append('\n');
         extraLines.append("WarnUnsafeSocks 1").append('\n');
+    	extraLines.append("DNSPort ").append("auto").append("\n");
+    	extraLines.append("DNSListenAddress 0.0.0.0").append('\n');
 
-        String dnsPort = prefs.getString("pref_dnsport", TorServiceConstants.TOR_DNS_PORT_DEFAULT+"");
-            
-        //extraLines.append("TransPort ").append(transPort).append('\n');
-    	extraLines.append("DNSPort ").append(dnsPort).append("\n");
-    	
-    	if (Prefs.useVpn())
-    		extraLines.append("DNSListenAddress 0.0.0.0").append('\n');
-    	
-        if (Prefs.transparentTethering())
-        {
-            extraLines.append("TransListenAddress 0.0.0.0").append('\n');
-            extraLines.append("DNSListenAddress 0.0.0.0").append('\n');            
-        }
-       
         extraLines.append("VirtualAddrNetwork 10.192.0.0/10").append('\n');
         extraLines.append("AutomapHostsOnResolve 1").append('\n');
 
@@ -660,8 +574,7 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
         {
         	extraLines.append("Log debug syslog").append('\n');    
         	extraLines.append("Log info syslog").append('\n');
-        	extraLines.append("SafeLogging 0").append('\n');   
-
+        	extraLines.append("SafeLogging 0").append('\n');
         }
         
         processSettingsImpl(extraLines);
@@ -719,26 +632,24 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
     /**
      * The entire process for starting tor and related services is run from this method.
      */
-    private void startTor() {
+    private boolean startTor() {
         // STATUS_STARTING is set in onCreate()
         if (mCurrentStatus == STATUS_STOPPING) {
             // these states should probably be handled better
             sendCallbackLogMessage("Ignoring start request, currently " + mCurrentStatus);
-            return;
+
+            return false;
         } else if (mCurrentStatus == STATUS_ON) {
         
             sendCallbackLogMessage("Ignoring start request, already started.");
             setTorNetworkEnabled (true);
 
-            return;
+            return true;
         }        
         
 
         try {
-        	
-	        // make sure there are no stray daemons running
-//	        killAllDaemons();
-	
+
 	        sendCallbackStatus(STATUS_STARTING);
             showToolbarNotification(getString(R.string.status_starting_up),NOTIFY_ID,R.drawable.ic_stat_tor);
 	        sendCallbackLogMessage(getString(R.string.status_starting_up));
@@ -754,56 +665,8 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
 
 	        boolean success = runTorShellCmd();
 
-            // Tor is running, update new .onion names at db
-            ContentResolver mCR = getApplicationContext().getContentResolver();
-            Cursor hidden_services = mCR.query(HS_CONTENT_URI, hsProjection, null, null, null);
-            if(hidden_services != null) {
-                try {
-                    while (hidden_services.moveToNext()) {
-                        String HSDomain = hidden_services.getString(hidden_services.getColumnIndex(HiddenService.DOMAIN));
-                        Integer HSLocalPort = hidden_services.getInt(hidden_services.getColumnIndex(HiddenService.PORT));
-                        Integer HSAuthCookie = hidden_services.getInt(hidden_services.getColumnIndex(HiddenService.AUTH_COOKIE));
-                        String HSAuthCookieValue = hidden_services.getString(hidden_services.getColumnIndex(HiddenService.AUTH_COOKIE_VALUE));
 
-                        // Update only new domains or restored from backup with auth cookie
-                        if((HSDomain == null || HSDomain.length() < 1) || (HSAuthCookie == 1 && (HSAuthCookieValue == null || HSAuthCookieValue.length() < 1))) {
-                            String hsDirPath = new File(mHSBasePath.getAbsolutePath(),"hs" + HSLocalPort).getCanonicalPath();
-                            File file = new File(hsDirPath, "hostname");
-
-                            if (file.exists())
-                            {
-                                ContentValues fields = new ContentValues();
-
-                                try {
-                                    String onionHostname = Utils.readString(new FileInputStream(file)).trim();
-                                    if(HSAuthCookie == 1) {
-                                        String[] aux = onionHostname.split(" ");
-                                        onionHostname = aux[0];
-                                        fields.put(HiddenService.AUTH_COOKIE_VALUE, aux[1]);
-                                    }
-                                    fields.put(HiddenService.DOMAIN, onionHostname);
-                                    mCR.update(HS_CONTENT_URI, fields, "port=" + HSLocalPort , null);
-                                } catch (FileNotFoundException e) {
-                                    logException("unable to read onion hostname file",e);
-                                    showToolbarNotification(getString(R.string.unable_to_read_hidden_service_name), HS_NOTIFY_ID, R.drawable.ic_stat_notifyerr);
-                                }
-                            }
-                            else
-                            {
-                                showToolbarNotification(getString(R.string.unable_to_read_hidden_service_name), HS_NOTIFY_ID, R.drawable.ic_stat_notifyerr);
-
-                            }
-                        }
-                    }
-
-                } catch (NumberFormatException e) {
-                    Log.e(OrbotConstants.TAG,"error parsing hsport",e);
-                } catch (Exception e) {
-                    Log.e(OrbotConstants.TAG,"error starting share server",e);
-                }
-
-                hidden_services.close();
-            }
+            return success;
 
         } catch (Exception e) {
             logException("Unable to start Tor: " + e.toString(), e);
@@ -812,6 +675,8 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
                     ERROR_NOTIFY_ID, R.drawable.ic_stat_notifyerr);
             stopTor();
         }
+
+        return false;
     }
 
 
@@ -975,11 +840,20 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
                         
                          String confSocks = conn.getInfo("net/listeners/socks");
                          StringTokenizer st = new StringTokenizer(confSocks," ");
-
                          confSocks = st.nextToken().split(":")[1];
-                         confSocks = confSocks.substring(0,confSocks.length()-1);
+                        confSocks = confSocks.substring(0,confSocks.length()-1);
                          mPortSOCKS = Integer.parseInt(confSocks);
-                                                  
+
+                        logNotice("Found tor socks port: " + mPortSOCKS);
+
+                        String confDNS = conn.getInfo("net/listeners/dns");
+                        st = new StringTokenizer(confDNS," ");
+                        confDNS = st.nextToken().split(":")[1].trim();
+                        confDNS = confDNS.substring(0,confDNS.length()-1);
+                        mPortDNS = Integer.parseInt(confDNS);
+
+                        logNotice("Found tor DNS port: " + mPortSOCKS);
+
                         return Integer.parseInt(torProcId);
                         
                     }
@@ -1539,59 +1413,7 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
            return false;
         }
 
-        try
-        {
-            if (becomeRelay && (!useBridges) && (!ReachableAddresses))
-            {
-                int ORPort =  Integer.parseInt(prefs.getString(OrbotConstants.PREF_OR_PORT, "9001"));
-                String nickname = prefs.getString(OrbotConstants.PREF_OR_NICKNAME, "Orbot");
-
-                String dnsFile = writeDNSFile ();
-                
-                extraLines.append("ServerDNSResolvConfFile" + ' ' + dnsFile).append('\n');
-                extraLines.append("ORPort" + ' ' + ORPort).append('\n');
-                extraLines.append("Nickname" + ' ' + nickname).append('\n');
-                extraLines.append("ExitPolicy" + ' ' + "reject *:*").append('\n');
-
-            }
-        }
-        catch (Exception e)
-        {
-             showToolbarNotification (getString(R.string.your_relay_settings_caused_an_exception_),ERROR_NOTIFY_ID,R.drawable.ic_stat_notifyerr);
-
-          
-            return false;
-        }
-
         ContentResolver mCR = getApplicationContext().getContentResolver();
-
-        /* ---- Hidden Services ---- */
-        Cursor hidden_services = mCR.query(HS_CONTENT_URI, hsProjection, HiddenService.ENABLED + "=1", null, null);
-        if(hidden_services != null) {
-            try {
-                while (hidden_services.moveToNext()) {
-                    String HSname = hidden_services.getString(hidden_services.getColumnIndex(HiddenService.NAME));
-                    Integer HSLocalPort = hidden_services.getInt(hidden_services.getColumnIndex(HiddenService.PORT));
-                    Integer HSOnionPort = hidden_services.getInt(hidden_services.getColumnIndex(HiddenService.ONION_PORT));
-                    Integer HSAuthCookie = hidden_services.getInt(hidden_services.getColumnIndex(HiddenService.AUTH_COOKIE));
-                    String hsDirPath = new File(mHSBasePath.getAbsolutePath(),"hs" + HSLocalPort).getCanonicalPath();
-
-                    debug("Adding hidden service on port: " + HSLocalPort);
-
-                    extraLines.append("HiddenServiceDir" + ' ' + hsDirPath).append('\n');
-                    extraLines.append("HiddenServicePort" + ' ' + HSOnionPort + " 127.0.0.1:" + HSLocalPort).append('\n');
-
-                    if(HSAuthCookie == 1)
-                        extraLines.append("HiddenServiceAuthorizeClient stealth " + HSname).append('\n');
-                }
-            } catch (NumberFormatException e) {
-                    Log.e(OrbotConstants.TAG,"error parsing hsport",e);
-            } catch (Exception e) {
-                    Log.e(OrbotConstants.TAG,"error starting share server",e);
-            }
-
-            hidden_services.close();
-		}
 
         /* ---- Client Cookies ---- */
         Cursor client_cookies = mCR.query(COOKIE_CONTENT_URI, cookieProjection, ClientCookie.ENABLED + "=1", null, null);
@@ -1624,6 +1446,7 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
     }
 
     //using Google DNS for now as the public DNS server
+
     private String writeDNSFile () throws IOException
     {
         File file = new File(appBinHome, "resolv.conf");
@@ -1796,9 +1619,11 @@ public class TorService extends Service implements TorServiceConstants, OrbotCon
 
     private void startVPNService ()
     {
+        Prefs.putUseVpn(true);
         Intent intentVpn = new Intent(this,TorVpnService.class);
         intentVpn.setAction("start");
         intentVpn.putExtra("torSocks",mPortSOCKS);
+        intentVpn.putExtra("torDNS",mPortDNS);
         startService(intentVpn);
     }
 
