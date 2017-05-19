@@ -321,11 +321,12 @@ public class AppManager extends Activity implements OnCheckedChangeListener, OnC
                 e.printStackTrace();
             }
 
+            /**
             if ((aInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1)
             {
                  //System app
                 app.setUsesInternet(true);
-           }
+           }**/
 
 
             try

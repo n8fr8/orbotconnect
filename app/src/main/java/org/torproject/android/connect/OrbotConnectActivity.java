@@ -509,10 +509,6 @@ public class OrbotConnectActivity extends Activity
 			//use the system browser since VPN is on
 			startIntent(null,Intent.ACTION_VIEW, Uri.parse(browserLaunchUrl));
 		}
-		else if (Prefs.useTransparentProxying())
-		{
-			startIntent(null,Intent.ACTION_VIEW, Uri.parse(browserLaunchUrl));
-		}
 		
 	}
 

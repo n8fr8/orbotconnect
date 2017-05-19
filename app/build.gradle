@@ -5,7 +5,7 @@ android {
     buildToolsVersion "25"
 
     defaultConfig {
-        applicationId "org.torproject.android"
+        applicationId "org.torproject.android.connect"
         minSdkVersion 21
         targetSdkVersion 25
     }
