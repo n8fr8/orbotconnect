@@ -1,6 +1,6 @@
 // Copyright 2005 Nick Mathewson, Roger Dingledine
 // See LICENSE file for copying information
-package org.torproject.android.control;
+package net.freehaven.tor.control;
 
 /**
  * Implementation of EventHandler that ignores all events.  Useful

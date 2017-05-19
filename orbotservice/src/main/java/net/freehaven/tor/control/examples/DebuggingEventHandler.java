@@ -1,10 +1,11 @@
 // Copyright 2005 Nick Mathewson, Roger Dingledine
 // See LICENSE file for copying information
-package org.torproject.android.control.examples;
+package net.freehaven.tor.control.examples;
+
+import net.freehaven.tor.control.EventHandler;
 
 import java.io.PrintWriter;
 import java.util.Iterator;
-import org.torproject.android.control.EventHandler;
 
 public class DebuggingEventHandler implements EventHandler {
 

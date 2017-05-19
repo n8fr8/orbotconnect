@@ -1,8 +1,13 @@
 // Copyright 2005 Nick Mathewson, Roger Dingledine
 // See LICENSE file for copying information
-package org.torproject.android.control.examples;
+package net.freehaven.tor.control.examples;
 
-import org.torproject.android.control.*;
+import net.freehaven.tor.control.ConfigEntry;
+import net.freehaven.tor.control.PasswordDigest;
+import net.freehaven.tor.control.TorControlCommands;
+import net.freehaven.tor.control.TorControlConnection;
+import net.freehaven.tor.control.TorControlError;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -49,7 +54,7 @@ public class Main implements TorControlCommands {
     }
 
     private static TorControlConnection getConnection(String[] args,
-        boolean daemon) throws IOException {
+                                                      boolean daemon) throws IOException {
         Socket s = new Socket("127.0.0.1", 9100);
         TorControlConnection conn = new TorControlConnection(s);
         conn.launchThread(daemon);

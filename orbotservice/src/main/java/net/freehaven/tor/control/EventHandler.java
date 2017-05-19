@@ -1,6 +1,6 @@
 // Copyright 2005 Nick Mathewson, Roger Dingledine
 // See LICENSE file for copying information
-package org.torproject.android.control;
+package net.freehaven.tor.control;
 
 /**
  * Abstract interface whose methods are invoked when Tor sends us an event.
